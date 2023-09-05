@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image to Gradient: An Infinite Journey</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #0d0d0d;
+            color: #fdf6e3;
+        }
+        .infinite-header, input[type="file"] {
+            text-align: center;
+            padding: 1rem;
+            font-size: 2rem;
+            background: #333;
+            color: #fdf6e3;
+            margin-bottom: 1rem;
+            border: none;
+        }
+        input[type="file"] {
+            cursor: pointer;
+        }
+        .explanatory-text {
+            font-size: 1.2rem;
+            margin: 2rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <input type="file" id="imageInput">
+    <div id="header" class="infinite-header">Gradient Here</div>
+    <div class="explanatory-text">
+        Behold, an odyssey into the hues and tones of your very own images. Upload a masterpiece, and witness the code unfold its chromatic tapestry into a linear gradient. Imagine blending the entropic beauty of art with the deterministic laws of computation. A narrative spun by colors, if you will. 
+    </div>
+
+    <script>
+        function rgbToHex(r, g, b) {
+            const toHex = (n) => {
+                const hex = n.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            };
+            return '#' + toHex(r) + toHex(g) + toHex(b);
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const imageInput = document.getElementById('imageInput');
+            const header = document.getElementById('header');
+
+            imageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        ctx.drawImage(img, 0, 0, img.width, img.height);
+                        
+                        const sections = 8;
+                        const sectionWidth = Math.floor(img.width / sections);
+                        
+                        let gradientCss = 'linear-gradient(0deg';
+
+                        for (let i = 0; i < sections; i++) {
+                            const data = ctx.getImageData(i * sectionWidth, 0, sectionWidth, img.height).data;
+                            let r = 0, g = 0, b = 0, count = 0;
+                            
+                            for (let j = 0; j < data.length; j += 4) {
+                                r += data[j];
+                                g += data[j + 1];
+                                b += data[j + 2];
+                                count++;
+                            }
+
+                            r = Math.floor(r / count);
+                            g = Math.floor(g / count);
+                            b = Math.floor(b / count);
+
+                            gradientCss += `, ${rgbToHex(r, g, b)}`;
+                        }
+
+                        gradientCss += ')';
+
+                        header.textContent = gradientCss;
+                        header.style.background = gradientCss;
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
+
+</body>
+</html>
